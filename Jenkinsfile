@@ -17,7 +17,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh 'docker compose build'
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
                 script {
                     try {
                         // Start containers in detached mode
-                        sh 'docker-compose up -d'
+                        sh 'docker compose up -d'
                         
                         // Simple health check: wait for API to be responsive
                         // In a real scenario, use a specific healthcheck script or endpoint test
@@ -39,7 +39,7 @@ pipeline {
                         error("Test failed: ${e.message}")
                     } finally {
                         // Clean up resources even if test fails
-                        sh 'docker-compose down'
+                        sh 'docker compose down'
                     }
                 }
             }
