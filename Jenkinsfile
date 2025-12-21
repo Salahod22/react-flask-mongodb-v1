@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Replace with your Docker Hub username
-        DOCKER_HUB_USER = "your_docker_username"
+        DOCKER_HUB_USER = "salahod"
         REGISTRY_CREDENTIALS_ID = 'docker-hub-credentials'
     }
 
