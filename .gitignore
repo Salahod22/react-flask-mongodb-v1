@@ -1,0 +1,25 @@
+# General
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+env/
+.env
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+client/node_modules/
+client/build/
+
+# Docker
+docker-compose.override.yml
+
+# Mongo
+mongo-data/
