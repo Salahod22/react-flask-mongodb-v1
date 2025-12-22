@@ -12,7 +12,6 @@ services:
       - /app/node_modules
     networks:
       - frontend
-    
 
   mongodb:
     image: mongo
@@ -44,6 +43,7 @@ services:
       MONGODB_USERNAME: salah
       MONGODB_PASSWORD: test
     volumes:
+      - ./backend:/app
       - appdata:/var/www/
     depends_on:
       - mongodb
@@ -56,9 +56,6 @@ networks:
     driver: bridge
   frontend:
     driver: bridge
-    
-
-  
 
 volumes:
   mongo-data:
