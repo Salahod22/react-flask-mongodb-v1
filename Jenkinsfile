@@ -43,8 +43,9 @@ pipeline {
                     // Note: Docker Compose builds images with names like <project_name>-<service_name>
                     // Based on logs, the images are 'todoapp-devops-api' and 'todoapp-devops-client'
                     // Added caching to speed up DB download
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
+                    // Added --skip-db-update because SAST stage already updated the DB in the shared cache
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image --skip-db-update todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image --skip-db-update todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
                 }
             }
         }
