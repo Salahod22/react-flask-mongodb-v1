@@ -11,7 +11,7 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = app.logger
 
-app.config['MONGO_DBNAME'] = 'mongotask'
+app.config['MONGO_DBNAME'] = os.environ.get('MONGODB_DATABASE', 'mongotask')
 app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/mongotask')
 
 mongo = PyMongo(app)
