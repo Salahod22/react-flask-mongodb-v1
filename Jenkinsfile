@@ -39,8 +39,10 @@ pipeline {
                 script {
                     // Scan the built images
                     // Need to mount docker socket to see local images
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image react-flask-mongodb-v1-api:latest --severity CRITICAL,HIGH --no-progress"
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image react-flask-mongodb-v1-client:latest --severity CRITICAL,HIGH --no-progress"
+                    // Note: Docker Compose builds images with names like <project_name>-<service_name>
+                    // Based on logs, the images are 'todoapp-devops-api' and 'todoapp-devops-client'
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
                 }
             }
         }
