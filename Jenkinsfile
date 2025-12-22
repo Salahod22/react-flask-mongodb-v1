@@ -26,7 +26,7 @@ pipeline {
                     // 2. Bandit: Check Python Backend for security issues
                     // Runs in a small python container, installs bandit (~2MB), runs scan
                     echo 'Running Bandit on Backend...'
-                    sh 'docker run --rm -v $PWD/backend:/app -w /app python:3.9-slim sh -c "pip install bandit -q && bandit -r ."'
+                    sh 'docker run --rm -v $PWD/backend:/app -w /app python:3.8-slim sh -c "pip install bandit -q && bandit -r ."'
                 }
             }
         }
