@@ -14,37 +14,19 @@ pipeline {
             }
         }
 
-        stage('Security Scan (SAST)') {
+        stage('Static Code Analysis') {
             steps {
                 script {
-                    // Scan filesystem for vulnerabilities (Code + Dependencies)
-                    // We use the dockerized version of Trivy to avoid installing it on the agent
-                    // --exit-code 0 means don't fail build yet (change to 1 to enforce security)
-                    // --severity CRITICAL,HIGH limits noise
-                    // Using workspace cache ($PWD/.trivy-cache) to ensure DB is shared between stages
-                    sh 'mkdir -p .trivy-cache' // Ensure cache dir exists
-                    sh 'docker run --rm -v $PWD:/app -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy -w /app aquasec/trivy fs . --severity CRITICAL,HIGH --no-progress'
-                }
-            }
-        }
+                    // 1. Hadolint: Check Dockerfiles for best practices
+                    // Runs instantly, no DB download
+                    echo 'Running Hadolint on Dockerfiles...'
+                    sh 'docker run --rm -i hadolint/hadolint < client/Dockerfile || true' // || true to not fail build on warnings yet
+                    sh 'docker run --rm -i hadolint/hadolint < backend/Dockerfile || true'
 
-        stage('Build') {
-            steps {
-                script {
-                    sh 'docker compose build'
-                }
-            }
-        }
-
-        stage('Security Scan (Image)') {
-            steps {
-                script {
-                    // Scan the built images
-                    // Need to mount docker socket to see local images
-                    // Using workspace cache ($PWD/.trivy-cache) to ensure DB is shared between stages
-                    // Removed --skip-db-update to allow update if needed, but cache should prevent full download
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
+                    // 2. Bandit: Check Python Backend for security issues
+                    // Runs in a small python container, installs bandit (~2MB), runs scan
+                    echo 'Running Bandit on Backend...'
+                    sh 'docker run --rm -v $PWD/backend:/app -w /app python:3.9-slim sh -c "pip install bandit -q && bandit -r ."'
                 }
             }
         }
