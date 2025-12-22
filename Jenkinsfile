@@ -14,10 +14,33 @@ pipeline {
             }
         }
 
+        stage('Security Scan (SAST)') {
+            steps {
+                script {
+                    // Scan filesystem for vulnerabilities (Code + Dependencies)
+                    // We use the dockerized version of Trivy to avoid installing it on the agent
+                    // --exit-code 0 means don't fail build yet (change to 1 to enforce security)
+                    // --severity CRITICAL,HIGH limits noise
+                    sh 'docker run --rm -v $PWD:/app -w /app aquasec/trivy fs . --severity CRITICAL,HIGH --no-progress'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
                     sh 'docker compose build'
+                }
+            }
+        }
+
+        stage('Security Scan (Image)') {
+            steps {
+                script {
+                    // Scan the built images
+                    // Need to mount docker socket to see local images
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image react-flask-mongodb-v1-api:latest --severity CRITICAL,HIGH --no-progress"
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image react-flask-mongodb-v1-client:latest --severity CRITICAL,HIGH --no-progress"
                 }
             }
         }
