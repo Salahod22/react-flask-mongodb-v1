@@ -21,8 +21,9 @@ pipeline {
                     // We use the dockerized version of Trivy to avoid installing it on the agent
                     // --exit-code 0 means don't fail build yet (change to 1 to enforce security)
                     // --severity CRITICAL,HIGH limits noise
-                    // Added caching (-v trivy-cache:/root/.cache/aquasec/trivy) to speed up DB download
-                    sh 'docker run --rm -v $PWD:/app -v trivy-cache:/root/.cache/aquasec/trivy -w /app aquasec/trivy fs . --severity CRITICAL,HIGH --no-progress'
+                    // Using workspace cache ($PWD/.trivy-cache) to ensure DB is shared between stages
+                    sh 'mkdir -p .trivy-cache' // Ensure cache dir exists
+                    sh 'docker run --rm -v $PWD:/app -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy -w /app aquasec/trivy fs . --severity CRITICAL,HIGH --no-progress'
                 }
             }
         }
@@ -40,12 +41,10 @@ pipeline {
                 script {
                     // Scan the built images
                     // Need to mount docker socket to see local images
-                    // Note: Docker Compose builds images with names like <project_name>-<service_name>
-                    // Based on logs, the images are 'todoapp-devops-api' and 'todoapp-devops-client'
-                    // Added caching to speed up DB download
-                    // Added --skip-db-update because SAST stage already updated the DB in the shared cache
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image --skip-db-update todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image --skip-db-update todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
+                    // Using workspace cache ($PWD/.trivy-cache) to ensure DB is shared between stages
+                    // Removed --skip-db-update to allow update if needed, but cache should prevent full download
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-api:latest --severity CRITICAL,HIGH --no-progress"
+                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $PWD/.trivy-cache:/root/.cache/aquasec/trivy aquasec/trivy image todoapp-devops-client:latest --severity CRITICAL,HIGH --no-progress"
                 }
             }
         }
