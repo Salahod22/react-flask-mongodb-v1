@@ -5,6 +5,7 @@ pipeline {
         // Replace with your Docker Hub username
         DOCKER_HUB_USER = "salahod"
         REGISTRY_CREDENTIALS_ID = 'docker-hub-credentials'
+        COMPOSE_PROJECT_NAME = "react-flask-mongodb-v1"
     }
 
     stages {
@@ -41,7 +42,7 @@ pipeline {
                         // Simple health check: wait for API to be responsive
                         // In a real scenario, use a specific healthcheck script or endpoint test
                         sleep 25
-                        sh 'curl --fail http://localhost:5000/api/tasks || exit 1'
+                        sh 'docker run --rm --network react-flask-mongodb-v1_backend curlimages/curl --fail -s http://api:5000/api/tasks || exit 1'
                         echo "API Test Passed"
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
