@@ -48,7 +48,7 @@ pipeline {
                         error("Test failed: ${e.message}")
                     } finally {
                         // Clean up resources even if test fails
-                        sh 'docker compose down'
+                        sh 'docker compose down -v'
                     }
                 }
             }
