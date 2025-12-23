@@ -7,9 +7,9 @@ services:
     tty: true
     ports:
       - "3000:3000"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./client:/app
+    #   - /app/node_modules
     networks:
       - frontend
 
@@ -44,7 +44,7 @@ services:
       MONGODB_USERNAME: salah
       MONGODB_PASSWORD: test
     volumes:
-      - ./backend:/app
+      # - ./backend:/app
       - appdata:/var/www/
     depends_on:
       - mongodb
