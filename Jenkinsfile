@@ -40,7 +40,7 @@ pipeline {
                         
                         // Simple health check: wait for API to be responsive
                         // In a real scenario, use a specific healthcheck script or endpoint test
-                        sleep 10
+                        sleep 15
                         sh 'curl --fail http://localhost:5000/api/tasks || exit 1'
                         echo "API Test Passed"
                     } catch (Exception e) {
