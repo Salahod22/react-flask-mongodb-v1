@@ -51,7 +51,7 @@ pipeline {
                         error("Test failed: ${e.message}")
                     } finally {
                         // Clean up resources even if test fails
-                        // sh 'docker compose down -v'
+                        sh 'docker compose down -v'
                     }
                 }
             }
@@ -76,7 +76,7 @@ pipeline {
 
     post {
         always {
-            // cleanWs()
+            cleanWs()
         }
     }
 }
